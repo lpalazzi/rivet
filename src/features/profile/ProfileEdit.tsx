@@ -11,12 +11,12 @@ import {
   Stack,
 } from "@mui/material";
 import {
-  currentProfile,
-  editError,
-  isCreatingProfile,
-  saveNewProfile,
-  saveProfileUpdates,
-  setActiveProfile,
+  activeProfile,
+  activeProfileStatus,
+  profileFormError,
+  editProfileSubmitted,
+  createProfileSubmitted,
+  profileFormCancelled
 } from "./profileSlice";
 import { useState } from "react";
 import { provinces, spectrum, states } from "../../utils";
@@ -24,31 +24,34 @@ import { AppDispatch } from "../../store";
 
 const ProfileEdit = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const activeProfile = useSelector(currentProfile);
-  const isCreating = useSelector(isCreatingProfile);
-  const error = useSelector(editError);
+  const profile = useSelector(activeProfile);
+  const profileStatus = useSelector(activeProfileStatus);
+  const error = useSelector(profileFormError);
 
   const [profileEdits, setProfileEdits] = useState({
-    first_name: activeProfile?.first_name || "",
-    last_name: activeProfile?.last_name || "",
-    phone: activeProfile?.phone || "",
-    email: activeProfile?.email || "",
-    address: activeProfile?.address || "",
-    city: activeProfile?.city || "",
-    state: activeProfile?.state || "",
-    zip: activeProfile?.zip || "",
-    photo: activeProfile?.photo || "",
-    notes: activeProfile?.notes || "",
+    first_name: profile?.first_name || "",
+    last_name: profile?.last_name || "",
+    phone: profile?.phone || "",
+    email: profile?.email || "",
+    address: profile?.address || "",
+    city: profile?.city || "",
+    state: profile?.state || "",
+    zip: profile?.zip || "",
+    photo: profile?.photo || "",
+    notes: profile?.notes || "",
   });
 
   const handleSubmit = () => {
-    if (!isCreating && activeProfile) {
-      const updatedProfile = { ...profileEdits, id: activeProfile.id };
-      dispatch(saveProfileUpdates(updatedProfile));
-    } else if (isCreating) {
-      dispatch(saveNewProfile(profileEdits));
+    if (profile && profileStatus === 'editing') {
+      dispatch(editProfileSubmitted({ ...profileEdits, id: profile.id }));
+    } else if (profileStatus === 'creating') {
+      dispatch(createProfileSubmitted(profileEdits));
     }
   };
+
+  const handleCancel = () => {
+    dispatch(profileFormCancelled({}));
+  }
 
   return (
     <Box
@@ -220,9 +223,7 @@ const ProfileEdit = () => {
         <Button
           sx={{ width: "100%" }}
           variant="outlined"
-          onClick={() => {
-            dispatch(setActiveProfile(activeProfile?.id || null));
-          }}
+          onClick={handleCancel}
         >
           Cancel
         </Button>

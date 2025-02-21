@@ -3,13 +3,12 @@ import { Profile, ProfileState, makeFakeUserList } from "./profileUtils";
 import { RootState } from "../../store";
 import { isArray } from "lodash";
 
-const initialState = {
+const initialState: ProfileState = {
   profiles: [],
-  inFocus: null,
-  isEditing: false,
-  isCreating: false,
-  editError: null,
-} as ProfileState;
+  activeProfile: null,
+  activeProfileStatus: null,
+  profileFormError: null,
+};
 
 function returnFakeProfiles() {
   return makeFakeUserList();
@@ -36,8 +35,8 @@ export const fetchProfiles = createAsyncThunk("profiles/fetchProfiles", () => {
   return returnNetworkProfiles();
 });
 
-export const saveProfileUpdates = createAsyncThunk(
-  "profiles/saveProfileUpdates",
+export const editProfileSubmitted = createAsyncThunk(
+  "profiles/updateProfileSubmitted",
   async (profile: Profile) => {
     return fetch(
       `https://codechallenge.rivet.work/api/v1/profile/${profile.id}`,
@@ -53,8 +52,8 @@ export const saveProfileUpdates = createAsyncThunk(
   }
 );
 
-export const saveNewProfile = createAsyncThunk(
-  "profiles/saveNewProfile",
+export const createProfileSubmitted = createAsyncThunk(
+  "profiles/createProfileSubmitted",
   async (profile: Omit<Profile, "id">) => {
     return fetch(`https://codechallenge.rivet.work/api/v1/profile`, {
       method: "POST",
@@ -71,29 +70,46 @@ export const profileSlice = createSlice({
   name: "profiles",
   initialState,
   reducers: {
-    setActiveProfile: (state, action) => {
+    profileSelected: (state, action) => {
       const id = action.payload;
       const found = state.profiles.find((item) => item.id == id);
       return {
         ...state,
-        inFocus: found || null,
-        isEditing: false,
-        isCreating: false,
+        activeProfile: found || null,
+        activeProfileStatus: 'viewing',
+        profileFormError: null
       };
     },
-    editActiveProfile: (state, action) => {
+    editProfileSelected: (state, action) => {
       return {
         ...state,
-        isEditing: state.inFocus ? true : false,
-      };
+        activeProfileStatus: 'editing',
+        profileFormError: null,
+      }
     },
-    createNewProfile: (state, action) => {
+    createProfileSelected: (state, action) => {
       return {
         ...state,
-        isCreating: true,
-        inFocus: null,
-      };
+        activeProfile: null,
+        activeProfileStatus: 'creating',
+        profileFormError: null,
+      }
     },
+    profileFormCancelled: (state, action) => {
+      return {
+        ...state,
+        activeProfileStatus: state.activeProfile ? 'viewing' : null,
+        profileFormError: null
+      }
+    },
+    profileModalClosed: (state, action) => {
+      return {
+        ...state,
+        activeProfile: null,
+        activeProfileStatus: null,
+        profileFormError: null
+      }
+    }
   },
   extraReducers(builder) {
     builder.addCase(fetchProfiles.fulfilled, (state, action) => {
@@ -102,11 +118,11 @@ export const profileSlice = createSlice({
         profiles: action.payload,
       };
     });
-    builder.addCase(saveProfileUpdates.fulfilled, (state, action) => {
+    builder.addCase(editProfileSubmitted.fulfilled, (state, action) => {
       if (!action.payload.id) {
         return {
           ...state,
-          editError: `Profile update failed: ${JSON.stringify(action.payload)}`,
+          profileFormError: `Profile update failed: ${JSON.stringify(action.payload)}`,
         };
       }
       return {
@@ -117,15 +133,16 @@ export const profileSlice = createSlice({
           }
           return profile;
         }),
-        inFocus: action.payload,
-        isEditing: false,
+        activeProfile: action.payload,
+        activeProfileStatus: 'viewing',
+        profileFormError: null
       };
     });
-    builder.addCase(saveNewProfile.fulfilled, (state, action) => {
+    builder.addCase(createProfileSubmitted.fulfilled, (state, action) => {
       if (!action.payload.id) {
         return {
           ...state,
-          editError: `Profile creation failed: ${JSON.stringify(
+          profileFormError: `Profile creation failed: ${JSON.stringify(
             action.payload
           )}`,
         };
@@ -133,22 +150,22 @@ export const profileSlice = createSlice({
       return {
         ...state,
         profiles: [...state.profiles, action.payload],
-        inFocus: action.payload,
-        isCreating: false,
+        activeProfile: action.payload,
+        activeProfileStatus: 'viewing',
+        profileFormError: null
       };
     });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setActiveProfile, editActiveProfile, createNewProfile } =
+export const { profileSelected, editProfileSelected, createProfileSelected, profileModalClosed, profileFormCancelled } =
   profileSlice.actions;
 export const profileList = (state: RootState) => state.profile.profiles;
 export const countProfiles = (state: RootState) =>
   state.profile.profiles.length as number;
-export const currentProfile = (state: RootState) => state.profile.inFocus;
-export const isEditingProfile = (state: RootState) => state.profile.isEditing;
-export const isCreatingProfile = (state: RootState) => state.profile.isCreating;
-export const editError = (state: RootState) => state.profile.editError;
+export const activeProfile = (state: RootState) => state.profile.activeProfile;
+export const activeProfileStatus = (state: RootState) => state.profile.activeProfileStatus;
+export const profileFormError = (state: RootState) => state.profile.profileFormError;
 
 export default profileSlice.reducer;

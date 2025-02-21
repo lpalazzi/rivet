@@ -4,13 +4,13 @@ import { Add } from "@mui/icons-material";
 import { ProfileList } from "./features/profile/ProfileList";
 import { Status } from "./features/profile/Status";
 import { ProfileModal } from "./features/profile/ProfileModal";
-import { createNewProfile } from "./features/profile/profileSlice";
+import { createProfileSelected } from "./features/profile/profileSlice";
 
 function App() {
   const dispatch = useDispatch();
 
   function handleClickAdd() {
-    dispatch(createNewProfile({}));
+    dispatch(createProfileSelected({}));
   }
 
   return (
@@ -31,7 +31,7 @@ function App() {
           >
             <IconButton
               sx={{ float: "right" }}
-              onClick={() => handleClickAdd()}
+              onClick={handleClickAdd}
             >
               <Add />
             </IconButton>

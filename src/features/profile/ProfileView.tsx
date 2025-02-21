@@ -1,20 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Button, Stack } from "@mui/material";
-import { currentProfile, editActiveProfile } from "./profileSlice";
+import { activeProfile, editProfileSelected } from "./profileSlice";
 import { spectrum } from "../../utils";
 
 const ProfileView = () => {
-  const activeProfile = useSelector(currentProfile);
+  const profile = useSelector(activeProfile);
   const dispatch = useDispatch();
 
   const handleEditProfile = () => {
-    if (activeProfile) {
-      dispatch(editActiveProfile({}));
+    if (profile) {
+      dispatch(editProfileSelected({}));
     }
   };
 
-  if (!activeProfile) {
-    return <p>No active selected</p>;
+  if (!profile) {
+    return <p>No profile selected</p>;
   }
 
   return (
@@ -51,23 +51,23 @@ const ProfileView = () => {
             backgroundPosition: "center",
             borderRadius: "100%",
             marginBottom: 2,
-            backgroundImage: activeProfile.photo
-              ? `url("${activeProfile.photo}")`
+            backgroundImage: profile.photo
+              ? `url("${profile.photo}")`
               : undefined,
-            background: !activeProfile.photo ? spectrum : undefined,
+            background: !profile.photo ? spectrum : undefined,
           }}
         />
         <p style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-          {activeProfile.first_name} {activeProfile.last_name}
+          {profile.first_name} {profile.last_name}
         </p>
-        <p>{activeProfile.email}</p>
-        <p>{activeProfile.phone}</p>
+        <p>{profile.email}</p>
+        <p>{profile.phone}</p>
         <p>
-          {activeProfile.address}
+          {profile.address}
           <br />
-          {activeProfile.city}, {activeProfile.state} {activeProfile.zip}
+          {profile.city}, {profile.state} {profile.zip}
         </p>
-        <p>{activeProfile.notes}</p>
+        <p>{profile.notes}</p>
         <Box sx={{ width: "100%", textAlign: "center" }}>
           <Button
             variant="outlined"

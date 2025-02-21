@@ -16,10 +16,9 @@ type Profile = {
 
 type ProfileState = {
   profiles: Profile[];
-  inFocus: Profile | null;
-  isEditing: boolean;
-  isCreating: boolean;
-  editError: string | null;
+  activeProfile: Profile | null;
+  activeProfileStatus: 'viewing' | 'editing' | 'creating' | null
+  profileFormError: string | null;
 };
 
 const makeFakeUserList = (): Profile[] => {

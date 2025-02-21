@@ -2,26 +2,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, IconButton, Modal } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import {
-  currentProfile,
-  isCreatingProfile,
-  isEditingProfile,
-  setActiveProfile,
+  activeProfile,
+  activeProfileStatus,
+  profileModalClosed,
 } from "./profileSlice";
 import { ProfileView } from "./ProfileView";
 import { ProfileEdit } from "./ProfileEdit";
 
 const ProfileModal = () => {
   const dispatch = useDispatch();
-  const activeProfile = useSelector(currentProfile);
-  const isEditing = useSelector(isEditingProfile);
-  const isCreating = useSelector(isCreatingProfile);
+  const profile = useSelector(activeProfile);
+  const profileStatus = useSelector(activeProfileStatus);
 
   const handleCloseModal = () => {
-    dispatch(setActiveProfile(null));
+    dispatch(profileModalClosed({}));
   };
 
   return (
-    <Modal open={!!activeProfile || isCreating} onClose={handleCloseModal}>
+    <Modal open={!!profile || profileStatus === 'creating'} onClose={handleCloseModal}>
       <Box
         sx={{
           position: "absolute",
@@ -36,13 +34,11 @@ const ProfileModal = () => {
       >
         <IconButton
           sx={{ float: "right" }}
-          onClick={() => {
-            dispatch(setActiveProfile(null));
-          }}
+          onClick={handleCloseModal}
         >
           <Close />
         </IconButton>
-        {isEditing || isCreating ? <ProfileEdit /> : <ProfileView />}
+        {profileStatus === 'viewing' ? <ProfileView /> :  <ProfileEdit />}
       </Box>
     </Modal>
   );

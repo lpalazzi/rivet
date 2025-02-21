@@ -1,14 +1,14 @@
 import { Box, Stack } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfileLineItem } from "./ProfileLineItem";
-import { profileList, setActiveProfile } from "./profileSlice";
+import { profileList, profileSelected } from "./profileSlice";
 
 const ProfileList = () => {
   const profiles = useSelector(profileList);
   const dispatch = useDispatch();
 
   function trySetProfile(data: number) {
-    dispatch(setActiveProfile(data));
+    dispatch(profileSelected(data));
   }
 
   return (

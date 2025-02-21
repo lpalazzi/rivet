@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
-import { countProfiles, currentProfile } from "./profileSlice";
+import { countProfiles, activeProfile } from "./profileSlice";
 import { useSelector } from "react-redux";
 
 const Status = () => {
   const count = useSelector(countProfiles)
-  const current = useSelector(currentProfile);
+  const current = useSelector(activeProfile);
 
 
   return (
