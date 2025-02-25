@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Profile, ProfileState, makeFakeUserList } from "./profileUtils";
+import { Profile, ProfileState } from "./profileUtils";
 import { RootState } from "../../store";
 import { isArray } from "lodash";
 
@@ -10,9 +10,9 @@ const initialState: ProfileState = {
   profileFormError: null,
 };
 
-function returnFakeProfiles() {
-  return makeFakeUserList();
-}
+// function returnFakeProfiles() {
+//   return makeFakeUserList();
+// }
 
 async function returnNetworkProfiles() {
   const profiles = await fetch(
@@ -72,44 +72,44 @@ export const profileSlice = createSlice({
   reducers: {
     profileSelected: (state, action) => {
       const id = action.payload;
-      const found = state.profiles.find((item) => item.id == id);
+      const found = state.profiles.find((item) => item.id === id);
       return {
         ...state,
         activeProfile: found || null,
-        activeProfileStatus: 'viewing',
-        profileFormError: null
+        activeProfileStatus: "viewing",
+        profileFormError: null,
       };
     },
     editProfileSelected: (state, action) => {
       return {
         ...state,
-        activeProfileStatus: 'editing',
+        activeProfileStatus: "editing",
         profileFormError: null,
-      }
+      };
     },
     createProfileSelected: (state, action) => {
       return {
         ...state,
         activeProfile: null,
-        activeProfileStatus: 'creating',
+        activeProfileStatus: "creating",
         profileFormError: null,
-      }
+      };
     },
     profileFormCancelled: (state, action) => {
       return {
         ...state,
-        activeProfileStatus: state.activeProfile ? 'viewing' : null,
-        profileFormError: null
-      }
+        activeProfileStatus: state.activeProfile ? "viewing" : null,
+        profileFormError: null,
+      };
     },
     profileModalClosed: (state, action) => {
       return {
         ...state,
         activeProfile: null,
         activeProfileStatus: null,
-        profileFormError: null
-      }
-    }
+        profileFormError: null,
+      };
+    },
   },
   extraReducers(builder) {
     builder.addCase(fetchProfiles.fulfilled, (state, action) => {
@@ -122,7 +122,9 @@ export const profileSlice = createSlice({
       if (!action.payload.id) {
         return {
           ...state,
-          profileFormError: `Profile update failed: ${JSON.stringify(action.payload)}`,
+          profileFormError: `Profile update failed: ${JSON.stringify(
+            action.payload
+          )}`,
         };
       }
       return {
@@ -134,8 +136,8 @@ export const profileSlice = createSlice({
           return profile;
         }),
         activeProfile: action.payload,
-        activeProfileStatus: 'viewing',
-        profileFormError: null
+        activeProfileStatus: "viewing",
+        profileFormError: null,
       };
     });
     builder.addCase(createProfileSubmitted.fulfilled, (state, action) => {
@@ -151,21 +153,28 @@ export const profileSlice = createSlice({
         ...state,
         profiles: [...state.profiles, action.payload],
         activeProfile: action.payload,
-        activeProfileStatus: 'viewing',
-        profileFormError: null
+        activeProfileStatus: "viewing",
+        profileFormError: null,
       };
     });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { profileSelected, editProfileSelected, createProfileSelected, profileModalClosed, profileFormCancelled } =
-  profileSlice.actions;
+export const {
+  profileSelected,
+  editProfileSelected,
+  createProfileSelected,
+  profileModalClosed,
+  profileFormCancelled,
+} = profileSlice.actions;
 export const profileList = (state: RootState) => state.profile.profiles;
 export const countProfiles = (state: RootState) =>
   state.profile.profiles.length as number;
 export const activeProfile = (state: RootState) => state.profile.activeProfile;
-export const activeProfileStatus = (state: RootState) => state.profile.activeProfileStatus;
-export const profileFormError = (state: RootState) => state.profile.profileFormError;
+export const activeProfileStatus = (state: RootState) =>
+  state.profile.activeProfileStatus;
+export const profileFormError = (state: RootState) =>
+  state.profile.profileFormError;
 
 export default profileSlice.reducer;
